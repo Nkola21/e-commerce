@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ product.name }}
+{% endblock %}
+
+{% block subheader %}
+    <div id="subheader">
+        <div class="cart">
+            {% with total_items=cart|length %}
+                {% if cart|length > 0 %}
+                    Cart:
+                    <a href="{% url 'cart_detail' product.store_id %}">
+                        {{ total_items }} item{{ total_items|pluralize }}, ${{ cart.get_total_price }}
+                    </a>
+                {% else %}
+                    Your cart is empty.
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="product-detail">
+        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/no_image.png' %}{% endif %}">
+        <h1>{{ product.name }}</h1>
+        <h2><a href="{% url 'product_list' product.store_id %}">{{ product.store }}</a></h2>
+        <p class="price">${{ product.price }}</p>
+        <form action="{% url 'cart_add' product.id %}" method="post">
+            {{ cart }}
+            {% csrf_token %}
+            <input type="submit" value="Add to cart">
+        </form>
+        {{ product.description|linebreaks }}
+    </div>
+{% endblock %}
+
+
+
+

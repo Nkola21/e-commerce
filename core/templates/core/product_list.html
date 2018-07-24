@@ -1,0 +1,51 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if store %}{{ store.name }}{% else %}Products{% endif %}
+{% endblock %}
+
+{% block subheader %}
+    <div id="subheader">
+        <div class="cart">
+            {% with total_items=cart|length %}
+                {% if cart|length > 0 %}
+                    Cart:
+                    <a href="{% url 'cart_detail' store.id %}">
+                        {{ total_items }} item{{ total_items|pluralize }}, ${{ cart.get_total_price }}
+                    </a>
+                {% else %}
+                    Your cart is empty.
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div id="sidebar">
+        <h3>Stores</h3>
+        <ul>
+            {% for st in stores %}
+            <li {% if st.id == store.id %}class="selected"{% endif %}>
+                <a href="{% url 'product_list' st.id %}">{{ st.name }}</a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+<h1>Products</h1>
+    <div class="row">
+        {% for product in products %}
+        <div class="card mb-3 m-2">
+            <img class="card-img-top" src="{{ product.image.url }}" />
+            <div class="card-body">
+                <a href="{% url 'product_detail' product.id %}">
+                   <h5 class="card-title">{{ store.name }}</h5>
+                    <h6>R{{ product.price }}</h6>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

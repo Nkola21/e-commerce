@@ -1,0 +1,55 @@
+Weather App
+============
+
+
+Requirements
+-------------
+
+1. Python 3.6
+2. Postgres 9.4 >
+
+
+
+Installation
+------------
+
+1. Create Postgres database `weather_app` with user `postgres` and password `password`
+
+2. Create a virtual environment
+    `pip install virtualenv`
+    `virtualenv -p python3 venv`
+2. Install all python dependencies `pip install -r requirements`
+3. Run database migrations: `python manage.py migrate`
+4. Start web server: `python manage.py runserver`
+
+
+
+Running Tests
+-------------
+
+1. python manage.py test
+
+
+
+Access Weather API
+-------------------
+
+1. On your browser navigate to `localhost:8000/api/v1/weather`. You will need to be logged in.
+2. You can go to `localhost:8000/docs` to view the api in swagger docs.
+
+
+
+Web Pages
+---------
+
+1. Login Page - `/login/`
+2. Register page - `/register/`
+3. Weather forecast page = `/forecast/`
+4. Signed out page - `/`
+
+
+Running the Scheduler
+---------------------
+
+1. To run the scheduler which consumes the news24 weather api: `python manage.py weather_forecast`
+2. The scheduler is set to run every 60 seconds for now.

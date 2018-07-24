@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="row">
+    {% for store in stores %}
+        <div class="card mb-3 m-2">
+            <img class="card-img-top" src="{{ store.image.url }}" />
+            <div class="card-body">
+                <a href="{% url 'product_list' store.id %}">
+                   <h5 class="card-title">{{ store.name }}</h5>
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

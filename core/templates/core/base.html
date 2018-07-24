@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>{% block title %}Online Shopping Mall{% endblock %}</title>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'core/css/base.css' %}" rel="stylesheet">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">OSM</a>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+        <ul class="navbar-nav mr-auto mt-2 my-lg-0">
+            <li class="nav-item active">
+                <a class="nav-item nav-link active" href="/">Home</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'login_page' %}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link disabled" href="{% url 'signup' %}">Sign up</a>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+  </div>
+</nav>
+    <h1>Online Shopping Mall</h1>
+      <hr>
+</head>
+<body>
+    <div id="header">
+        <a href="/" class="logo">My shop</a>
+    </div>
+    <div id="subheader">
+        {% block subheader %}
+        {% endblock %}
+    </div>
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
