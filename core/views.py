@@ -1,8 +1,13 @@
+from django.http import Http404
 from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.utils.translation import gettext as _
 
 from .forms import (
     OrderCreateForm,
@@ -61,22 +66,37 @@ def cart_detail(request, store_id):
         }
     )
 
+class ProductListView(ListView):
+    model = Product
+    pk_url_kwarg = 'pk'
+    template_name = 'core/product_list.html'
 
-def product_list(request, store_id):
-    store = get_object_or_404(Store, id=store_id)
-    stores = get_list_or_404(Store)
-    products = get_list_or_404(Product, store=store)
+    def get(self, request, *args, **kwargs):
+        store_id = kwargs.get('store_id', None)
+        self.object_list = Product.objects.filter(store__id=store_id)
+        allow_empty = self.get_allow_empty()
 
-    context = {
-        'store': store,
-        'stores': stores,
-        'products': products
-    }
-    return render(
-        request,
-        'core/product_list.html',
-        context
-    )
+        if not allow_empty:
+            # When pagination is enabled and object_list is a queryset,
+            # it's better to do a cheap query than to load the unpaginated
+            # queryset in memory.
+            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
+                is_empty = not self.object_list.exists()
+            else:
+                is_empty = len(self.object_list) == 0
+            if is_empty:
+                raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
+                    'class_name': self.__class__.__name__,
+                })
+        store = get_object_or_404(Store, id=store_id)
+        stores = Store.objects.all()
+
+        context = self.get_context_data()
+        context['store'] = store
+        context['stores'] = stores
+        if request.user.is_authenticated:
+            context['user'] = request.user
+        return self.render_to_response(context)
 
 
 def store_list(request):
@@ -89,19 +109,28 @@ def store_list(request):
     )
 
 
-def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    shopping_cart_form = ShoppingCartProductForm()
-    context = {
-        'product': product,
-        'cart': shopping_cart_form
-    }
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'core/product_detail.html'
 
-    return render(
-        request,
-        'core/product_detail.html',
-        context
-    )
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def get_object(self, queryset=None):
+        # self.pk_url_kwarg = kwargs.get('store_id')
+        pk = self.kwargs.get('product_id')
+        if pk is not None:
+            queryset = Product.objects.filter(pk=pk)
+        try:
+            # Get the single item from the filtered queryset
+            obj = queryset.get()
+        except queryset.model.DoesNotExist:
+            raise Http404(_("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': queryset.model._meta.verbose_name})
+        return obj
+
 
 @login_required
 def create_order(request):
@@ -167,3 +196,52 @@ def sign_in(request):
     else:
         form = AuthenticationForm()
     return render(request, 'core/login.html', {'form': form})
+
+
+class EditNewStoreView(UpdateView):
+    model = Store
+    queryset = Store.objects.all()
+    success_url = '/'
+    template_name = 'core/store_form.html'
+    queryset = Store.objects.all()
+    fields = [
+        'store_owner',
+        'store_type',
+        'name',
+        'location',
+        'image'
+    ]
+
+    def get_object(self, queryset=None):
+        # self.pk_url_kwarg = kwargs.get('store_id')
+        pk = self.kwargs.get('store_id')
+        if pk is not None:
+            queryset = Store.objects.filter(pk=pk)
+        try:
+            # Get the single item from the filtered queryset
+            obj = queryset.get()
+        except queryset.model.DoesNotExist:
+            raise Http404(_("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': queryset.model._meta.verbose_name})
+        return obj
+
+
+class AddNewStoreView(CreateView):
+    model = Store
+    success_url = '/'
+    fields = [
+        'store_owner',
+        'store_type',
+        'name',
+        'location',
+        'image'
+    ]
+
+    # def post(self, request, **kwargs):
+    #     form = self.get_form()
+    #     form.files = request.FILES
+    #     print(form)
+    #     if form.is_valid():
+    #         return self.form_valid(form)
+    #     else:
+    #         return self.form_invalid(form)

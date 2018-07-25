@@ -95,6 +95,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 class StoreAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'image',
         'store_type',
@@ -107,6 +108,7 @@ class StoreAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'image',
         'brand_name',

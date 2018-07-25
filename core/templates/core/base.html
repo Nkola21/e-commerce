@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,7 +37,7 @@
 </head>
 <body>
     <div id="header">
-        <a href="/" class="logo">My shop</a>
+        <a href="{% url 'new-store' %}" class="btn ">New Shop</a>
     </div>
     <div id="subheader">
         {% block subheader %}

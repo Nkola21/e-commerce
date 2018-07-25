@@ -26,7 +26,7 @@
     <div class="product-detail">
         <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/no_image.png' %}{% endif %}">
         <h1>{{ product.name }}</h1>
-        <h2><a href="{% url 'product_list' product.store_id %}">{{ product.store }}</a></h2>
+        <h2><a href="{% url 'product-list' product.store_id %}">{{ product.store }}</a></h2>
         <p class="price">${{ product.price }}</p>
         <form action="{% url 'cart_add' product.id %}" method="post">
             {{ cart }}

@@ -47,7 +47,7 @@ class Store(models.Model):
         ('ELECTRONIC_DEVICE', 'Electronic Device'),
     )
     name = models.CharField(max_length=25)
-    image = models.ImageField(upload_to=settings.UPLOAD_DIR)
+    image = models.ImageField(upload_to=settings.UPLOAD_DIR, max_length=500)
     store_type = models.CharField(max_length=25, choices=STORE_TYPE, blank=True)
     location = models.CharField(max_length=50, blank=True)
     store_owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)

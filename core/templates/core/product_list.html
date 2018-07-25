@@ -7,17 +7,24 @@
 
 {% block subheader %}
     <div id="subheader">
-        <div class="cart">
-            {% with total_items=cart|length %}
-                {% if cart|length > 0 %}
-                    Cart:
-                    <a href="{% url 'cart_detail' store.id %}">
-                        {{ total_items }} item{{ total_items|pluralize }}, ${{ cart.get_total_price }}
-                    </a>
-                {% else %}
-                    Your cart is empty.
-                {% endif %}
-            {% endwith %}
+        <div class="row">
+            {% if store.store_owner == user %}
+                <div>
+                    <a class="btn btn-primary p-2" href="{% url 'store-edit' store.id %}">Edit Store</a>
+                </div>
+            {% endif %}
+            <div class="cart p-2">
+                {% with total_items=cart|length %}
+                    {% if cart|length > 0 %}
+                        Cart:
+                        <a href="{% url 'cart_detail' store.id %}">
+                            {{ total_items }} item{{ total_items|pluralize }}, ${{ cart.get_total_price }}
+                        </a>
+                    {% else %}
+                        Your cart is empty.
+                    {% endif %}
+                {% endwith %}
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -29,19 +36,19 @@
         <ul>
             {% for st in stores %}
             <li {% if st.id == store.id %}class="selected"{% endif %}>
-                <a href="{% url 'product_list' st.id %}">{{ st.name }}</a>
+                <a href="{% url 'product-list' st.id %}">{{ st.name }}</a>
             </li>
         {% endfor %}
         </ul>
     </div>
 <h1>Products</h1>
     <div class="row">
-        {% for product in products %}
+        {% for product in object_list %}
         <div class="card mb-3 m-2">
             <img class="card-img-top" src="{{ product.image.url }}" />
             <div class="card-body">
                 <a href="{% url 'product_detail' product.id %}">
-                   <h5 class="card-title">{{ store.name }}</h5>
+                   <h5 class="card-title">{{ product.name }}</h5>
                     <h6>R{{ product.price }}</h6>
                 </a>
             </div>
