@@ -7,17 +7,24 @@
 
 {% block subheader %}
     <div id="subheader">
-        <div class="cart">
-            {% with total_items=cart|length %}
-                {% if cart|length > 0 %}
-                    Cart:
-                    <a href="{% url 'cart_detail' product.store_id %}">
-                        {{ total_items }} item{{ total_items|pluralize }}, ${{ cart.get_total_price }}
-                    </a>
-                {% else %}
-                    Your cart is empty.
-                {% endif %}
-            {% endwith %}
+        <div class="row">
+            {% if store_owner == user %}
+            <div>
+                <a class="btn btn-primary p-2" href="{% url 'product-edit' product.id %}">Edit Product</a>
+            </div>
+            {% endif %}
+            <div class="cart">
+                {% with total_items=cart|length %}
+                    {% if cart|length > 0 %}
+                        Cart:
+                        <a href="{% url 'cart_detail' product.store_id %}">
+                            {{ total_items }} item{{ total_items|pluralize }}, ${{ cart.get_total_price }}
+                        </a>
+                    {% else %}
+                        Your cart is empty.
+                    {% endif %}
+                {% endwith %}
+            </div>
         </div>
     </div>
 {% endblock %}

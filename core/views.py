@@ -95,7 +95,7 @@ class ProductListView(ListView):
         context['store'] = store
         context['stores'] = stores
         if request.user.is_authenticated:
-            context['user'] = request.user
+            context['user'] = get_object_or_404(CustomUser, id=request.user.id)
         return self.render_to_response(context)
 
 
@@ -114,22 +114,20 @@ class ProductDetailView(DetailView):
     template_name = 'core/product_detail.html'
 
     def get(self, request, *args, **kwargs):
+        print(kwargs)
+        print(dir(request))
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        if request.user.is_authenticated:
+            context['user'] = get_object_or_404(CustomUser, id=request.user.id)
+        store_owner = self.object.store.store_owner
+        context['store_owner'] = store_owner
         return self.render_to_response(context)
 
     def get_object(self, queryset=None):
-        # self.pk_url_kwarg = kwargs.get('store_id')
-        pk = self.kwargs.get('product_id')
-        if pk is not None:
-            queryset = Product.objects.filter(pk=pk)
-        try:
-            # Get the single item from the filtered queryset
-            obj = queryset.get()
-        except queryset.model.DoesNotExist:
-            raise Http404(_("No %(verbose_name)s found matching the query") %
-                          {'verbose_name': queryset.model._meta.verbose_name})
-        return obj
+        pk = self.kwargs.get('product_id', None)
+        product = get_object_or_404(Product, id=pk)
+        return get_object(pk, product, self.queryset)
 
 
 @login_required
@@ -200,7 +198,6 @@ def sign_in(request):
 
 class EditNewStoreView(UpdateView):
     model = Store
-    queryset = Store.objects.all()
     success_url = '/'
     template_name = 'core/store_form.html'
     queryset = Store.objects.all()
@@ -211,19 +208,40 @@ class EditNewStoreView(UpdateView):
         'location',
         'image'
     ]
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get('store_id', None)
+        store = get_object_or_404(Store, id=pk)
+        return get_object(pk, store, self.queryset)
+
+
+class EditProductView(UpdateView):
+    model = Product
+    success_url = '/'
+    template_name = 'core/product_form.html'
+    queryset = Product.objects.all()
+    fields = [
+        'name',
+        'brand_name',
+        'quantity_on_stock',
+        'price',
+        'is_available',
+        'product_type',
+        'store'
+    ]
+
+    def get(self, request, *args, **kwargs):
+        pk = get_object_or_404(Product, id=kwargs.get('product_id', None))
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        if pk is not None:
+            store = get_object_or_404(Store, id=pk.store.id)
+            context['store_id'] = store.id
+        return self.render_to_response(context)
 
     def get_object(self, queryset=None):
-        # self.pk_url_kwarg = kwargs.get('store_id')
-        pk = self.kwargs.get('store_id')
-        if pk is not None:
-            queryset = Store.objects.filter(pk=pk)
-        try:
-            # Get the single item from the filtered queryset
-            obj = queryset.get()
-        except queryset.model.DoesNotExist:
-            raise Http404(_("No %(verbose_name)s found matching the query") %
-                          {'verbose_name': queryset.model._meta.verbose_name})
-        return obj
+        pk = self.kwargs.get('product_id', None)
+        product = get_object_or_404(Product, id=pk)
+        return get_object(pk, product, self.queryset)
 
 
 class AddNewStoreView(CreateView):
@@ -237,11 +255,14 @@ class AddNewStoreView(CreateView):
         'image'
     ]
 
-    # def post(self, request, **kwargs):
-    #     form = self.get_form()
-    #     form.files = request.FILES
-    #     print(form)
-    #     if form.is_valid():
-    #         return self.form_valid(form)
-    #     else:
-    #         return self.form_invalid(form)
+
+def get_object(pk, object=None, queryset=None):
+    if pk is not None:
+        queryset = type(object).objects.filter(pk=pk)
+    try:
+        # Get the single item from the filtered queryset
+        obj = queryset.get()
+    except object.DoesNotExist:
+        raise Http404(_("No %(verbose_name)s found matching the query") %
+                      {'verbose_name': queryset.model._meta.verbose_name})
+    return obj
