@@ -12,9 +12,6 @@
                 <div>
                     <a class="btn btn-primary p-2" href="{% url 'store-edit' store.id %}">Edit Store</a>
                 </div>
-                <div>
-                    <a class="btn btn-primary p-2" href="{% url 'order-list' store.id %}">View Orders</a>
-                </div>
             {% endif %}
             <div class="cart p-2">
                 {% with total_items=cart|length %}
@@ -34,28 +31,38 @@
 
 {% block content %}
 
-    <div id="sidebar">
-        <h3>Stores</h3>
-        <ul>
-            {% for st in stores %}
-            <li {% if st.id == store.id %}class="selected"{% endif %}>
-                <a href="{% url 'product-list' st.id %}">{{ st.name }}</a>
-            </li>
+    <table class="table table-borderless table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Order #</th>
+          <th scope="col">First Name</th>
+          <th scope="col">Last Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Address</th>
+          <th scope="col">City</th>
+          <th scope="col">Paid</th>
+          <th scope="col">Store</th>
+          <th scope="col">Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in object_list %}
+        <tr>
+          <th scope="row">{{ oder.id }}</th>
+          <td>{{ order.first_name }}</td>
+          <td>{{ order.last_name }}</td>
+          <td>{{ email.email }}</td>
+          <td>{{ order.address }}</td>
+          <td>{{ order.city }}</td>
+          <td>{{ order.paid }}</td>
+          <td>{{ order.paid }}</td>
+          <td>
+              <a class="btn btn-primary" href="{% url 'order-update' order.id %}">
+                <i class="fas fa-edit"></i>
+              </a>
+          </td>
+        </tr>
         {% endfor %}
-        </ul>
-    </div>
-<h1>Products</h1>
-    <div class="row">
-        {% for product in object_list %}
-        <div class="card mb-3 m-2">
-            <img class="card-img-top" src="{{ product.image.url }}" />
-            <div class="card-body">
-                <a href="{% url 'product_detail' product.id %}">
-                   <h5 class="card-title">{{ product.name }}</h5>
-                    <h6>R{{ product.price }}</h6>
-                </a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+      </tbody>
+    </table>
 {% endblock %}

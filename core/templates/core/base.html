@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <title>{% block title %}Online Shopping Mall{% endblock %}</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
     <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'core/css/base.css' %}" rel="stylesheet">
 
@@ -36,12 +37,20 @@
       <hr>
 </head>
 <body>
-    <div id="header">
-        <a href="{% url 'new-store' %}" class="btn ">New Shop</a>
-    </div>
+    {% block subheader %}
+        <div id="header" class="mx-2">
+            <a href="{% url 'new-store' %}" class="btn btn-primary">New Shop</a>
+        </div>
+        {% if user.is_authenticated %}
+            {{ store }}
+            {% if user == store.store_owner %}
+                <div id="header" class="ml-4">
+                    <a href="{% url 'order-list' store.id %}" class="btn btn-primary">View Orders</a>
+                </div>
+            {% endif %}
+        {% endif %}
     <div id="subheader">
-        {% block subheader %}
-        {% endblock %}
+    {% endblock %}
     </div>
     <div id="content">
         {% block content %}

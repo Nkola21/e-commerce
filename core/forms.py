@@ -16,6 +16,7 @@ class ShoppingCartProductForm(forms.Form):
 
 
 class OrderCreateForm(forms.ModelForm):
+
     class Meta:
         model = Order
         fields = [
@@ -24,8 +25,14 @@ class OrderCreateForm(forms.ModelForm):
             'email',
             'address',
             'postal_code',
-            'city'
+            'city',
+            'store'
         ]
+
+    def __init__(self, *args, **kwargs):
+        store = kwargs.get('initial', None)
+        kwargs.update(initial=store)
+        super(OrderCreateForm, self).__init__(*args, **kwargs)
 
 
 class SignUpForm(forms.ModelForm):
